@@ -1,0 +1,144 @@
+#include "serial-hash.h"
+#include "serial-hash-internal.h"
+#include <criterion/criterion.h>
+
+void setup(void)
+{
+}
+
+void teardown(void)
+{
+}
+
+TestSuite(serial_hash, .init = setup, .fini = teardown);
+
+Test(serial_hash, test_serial_hash)
+{
+  gchar buffer[400];
+
+  SerialHash *self = serial_hash_new((guchar *)buffer, sizeof(buffer));
+
+  serial_hash_insert(self, "key", (guchar *)"value", sizeof("value"));
+
+  const guchar *data = NULL;
+  gsize data_len = 0;
+  serial_hash_lookup(self, "key", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "value");
+  cr_assert_eq(data_len, sizeof("value"));
+
+  serial_hash_free(self);
+}
+
+Test(serial_hash, test_payload)
+{
+  guchar *payload = NULL;
+  gsize payload_len = 0;
+
+  payload_new("key", (guchar *)"value", sizeof("value"), &payload, &payload_len);
+  cr_assert(payload);
+  cr_assert(payload_len);
+
+  cr_assert_str_eq(payload_get_key(payload), "key");
+
+  guchar *value = NULL;
+  gsize value_len = 0;
+  payload_get_value(payload, &value, &value_len);
+  cr_assert_eq(value_len, sizeof("value"));
+  cr_assert_str_eq((gchar *)value, "value");
+  payload_free(payload);
+}
+
+Test(serial_hash, test_serial_remove)
+{
+  gchar buffer[400];
+
+  SerialHash *self = serial_hash_new((guchar *)buffer, sizeof(buffer));
+
+  const guchar *data = NULL;
+  gsize data_len = 0;
+  serial_hash_lookup(self, "key", &data, &data_len);
+  cr_assert_null(data);
+  cr_assert_eq(data_len, 0);
+
+  serial_hash_insert(self, "key", (guchar *)"value", sizeof("value"));
+  serial_hash_lookup(self, "key", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "value");
+  cr_assert_eq(data_len, sizeof("value"));
+
+  serial_hash_free(self);
+}
+
+Test(serial_hash, test_serial_update)
+{
+  gchar buffer[400];
+
+  SerialHash *self = serial_hash_new((guchar *)buffer, sizeof(buffer));
+
+  const guchar *data = NULL;
+  gsize data_len = 0;
+  serial_hash_insert(self, "key", (guchar *)"value", sizeof("value"));
+  serial_hash_lookup(self, "key", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "value");
+  cr_assert_eq(data_len, sizeof("value"));
+
+  serial_hash_insert(self, "key", (guchar *)"value-longer", sizeof("value-longer"));
+  serial_hash_lookup(self, "key", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "value-longer");
+  cr_assert_eq(data_len, sizeof("value-longer"));
+
+  serial_hash_insert(self, "key", (guchar *)"v", sizeof("v"));
+  serial_hash_lookup(self, "key", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "v");
+  cr_assert_eq(data_len, sizeof("v"));
+
+  serial_hash_free(self);
+}
+
+Test(serial_hash, test_serial_multi_insert)
+{
+  gchar buffer[400];
+
+  SerialHash *self = serial_hash_new((guchar *)buffer, sizeof(buffer));
+
+  const guchar *data = NULL;
+  gsize data_len = 0;
+  serial_hash_insert(self, "key1", (guchar *)"value1", sizeof("value1"));
+  serial_hash_insert(self, "key2", (guchar *)"value2", sizeof("value2"));
+  serial_hash_insert(self, "key3", (guchar *)"value3", sizeof("value3"));
+
+  serial_hash_lookup(self, "key1", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "value1");
+  cr_assert_eq(data_len, sizeof("value1"));
+
+  serial_hash_lookup(self, "key2", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "value2");
+  cr_assert_eq(data_len, sizeof("value2"));
+
+  serial_hash_lookup(self, "key3", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "value3");
+  cr_assert_eq(data_len, sizeof("value3"));
+
+  serial_hash_free(self);
+}
+
+Test(serial_hash, test_serial_hash_load)
+{
+  gchar buffer[400];
+  SerialHash *self = serial_hash_new((guchar *)buffer, sizeof(buffer));
+  serial_hash_insert(self, "key", (guchar *)"value", sizeof("value"));
+  serial_hash_free(self);
+
+  gchar other_buffer[400];
+  memcpy(other_buffer, buffer, sizeof(other_buffer));
+  memset(buffer, 0, sizeof(buffer));
+
+  SerialHash *loaded = serial_hash_load((guchar *)other_buffer, sizeof(other_buffer));
+
+  const guchar *data = NULL;
+  gsize data_len = 0;
+  serial_hash_lookup(loaded, "key", &data, &data_len);
+  cr_assert_str_eq((gchar *)data, "value");
+  cr_assert_eq(data_len, sizeof("value"));
+
+  serial_hash_free(loaded);
+}

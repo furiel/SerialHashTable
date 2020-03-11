@@ -1,0 +1,22 @@
+name: ubuntu-bionic
+
+on: [pull_request, push]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build-and-check
+        run: |
+          set -e
+          wget -qO - http://download.opensuse.org/repositories/home:/laszlo_budai:/syslog-ng/xUbuntu_18.04/Release.key | sudo apt-key add -
+          echo 'deb http://download.opensuse.org/repositories/home:/laszlo_budai:/syslog-ng/xUbuntu_18.04 ./' | sudo tee /etc/apt/sources.list.d/obs.list
+          sudo apt-get update
+          sudo apt-get install criterion-dev -y
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=`pwd`/install
+          make
+          make install
+          make test

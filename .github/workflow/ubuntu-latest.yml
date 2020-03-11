@@ -1,0 +1,16 @@
+name: ubuntu
+
+on: [pull_request, push]
+
+jobs:
+  build-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: build-and-check
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=`pwd`/install
+          make
+          make install
+          make test

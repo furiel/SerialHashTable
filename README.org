@@ -1,0 +1,37 @@
+* SerialHashTable
+
+A HashTable library designed to be used confined space. For example in a file backed mmap area.
+
+* Complexity
+- Lookup: log(n)
+- Insert: O(n)
+- Update:
+  - log(n): if the value fits into the same space
+  - O(n): if new node needs to be allocated.
+- Delete: O(1)
+
+* Features
+- Uses fix region
+Allocation, deallocation happens in the user provided buffer
+
+- Relocatable in O(1)
+The user provided buffer can be moved around the memory, as long as the base address is maintained.
+
+- Defragmentation
+Delete: the allocated node is marked as free space. Neighbouring spaces are joined.
+Insert: the first large enough space is used
+
+* Dependencies
+- glib
+- [[https://github.com/Snaipe/Criterion][criterion]] (for the unit tests)
+
+* Build
+
+#+BEGIN_SRC sh
+$ mkdir build
+$ cd build
+$ # Omit or use your own install prefix.
+$ # Tests can be disabled with -DBUILD_TESTING=NO
+$ cmake .. -DCMAKE_INSTALL_PREFIX=`pwd`/install
+$ make && make install
+#+END_SRC

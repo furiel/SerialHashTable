@@ -3,8 +3,11 @@ add_library(serialhashtable
   serial-hash.c
   serial-list.c)
 
-target_include_directories(serialhashtable PUBLIC ${GLIB_INCLUDE_DIRS})
-target_include_directories(serialhashtable INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(serialhashtable
+  PUBLIC ${GLIB_INCLUDE_DIRS}
+  INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 target_link_libraries(serialhashtable PUBLIC ${GLIB_LIBRARIES})
 
 install(TARGETS serialhashtable

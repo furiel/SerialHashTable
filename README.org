@@ -28,10 +28,8 @@ Insert: the first large enough space is used
 * Build
 
 #+BEGIN_SRC sh
-$ mkdir build
-$ cd build
 $ # Omit or use your own install prefix.
 $ # Tests can be disabled with -DBUILD_TESTING=NO
-$ cmake .. -DCMAKE_INSTALL_PREFIX=`pwd`/install
-$ make && make install
+$ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=`pwd`/install
+$ cmake --build build/ --target install
 #+END_SRC

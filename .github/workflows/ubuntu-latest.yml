@@ -1,0 +1,22 @@
+name: ubuntu-latest
+
+on: [pull_request, push]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: install-dependencies
+        run: |
+          sudo add-apt-repository ppa:snaipewastaken/ppa
+          sudo apt-get update
+          sudo apt-get install criterion-dev -y
+      - uses: actions/checkout@v2
+      - name: build
+        run: |
+          cmake -S . -B build -DCMAKE_INSTALL_PREFIX=`pwd`/install
+          cmake --build build/
+      - name: test
+        run: cmake --build build/ --target test
+      - name: install
+        run: cmake --build build/ --target install

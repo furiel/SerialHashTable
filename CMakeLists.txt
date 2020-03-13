@@ -9,8 +9,7 @@ find_package(GLIB COMPONENTS gmodule gthread REQUIRED)
 
 add_subdirectory(src)
 
-option(BUILD_TESTING "Build tests" "ON")
+include(CTest)
 if (BUILD_TESTING)
-enable_testing()
-add_subdirectory(tests)
+  add_subdirectory(tests)
 endif()

@@ -8,11 +8,15 @@ target_include_directories(serialhashtable
   INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+set_target_properties(serialhashtable PROPERTIES
+  PUBLIC_HEADER serial-hash.h
+)
+
 target_link_libraries(serialhashtable PUBLIC ${GLIB_LIBRARIES})
 
 install(TARGETS serialhashtable
-    EXPORT serialhashtable-export
+    EXPORT serialhashtable-targets
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-install(FILES serial-hash.h DESTINATION serial-hash/)
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/serial-hash
+)
